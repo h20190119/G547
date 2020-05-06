@@ -1,0 +1,35 @@
+PROJECT TITLE
+Implementing block driver for the USB drive to perform READ (10) and WRITE (10) SCSI command functions in order to read and write sectors on the USB disk
+
+Prerequisites
+Linux operating system
+
+Commands and steps to be used to compile the code
+•         Keep the code file and makefile in the same path
+•         In the code the vid and pid shall be modified according to the usb that’s being used.
+•         To know the vid and pid of the usb, use command ‘lsusb -v’ after plugging in the usb
+•         Open terminal in the same folder where the code file is kept
+•         Use command ‘Sudo make all’ to compile the code
+•         After compiling use command ‘Sudo insmod <module filename>’ to add file to directory
+•         To check if the file has been added or not use command ‘lsmod’
+•         Plug in the pendrive
+•         Use command ‘Sudo fdisk –l’ to view the disk and its partitions
+•         Use command ‘Sudo mkdir /media/<directory name>’ to create a new directory
+•         Use command ‘Sudo mount –t vfat /dev/USB_BLOCK_DEV1 /media/<directory name> to mount the usb and wait for the mounting to be completed
+•         Enter the folder using ‘Cd /media/<directory name>’  
+•         To read any file inside the folder open it using Gedit <folder name>
+•         Install vim operation to perform write operation on the usb
+•         To create a new folder in usb use command ‘sudo vim <folder name>’ and to write anything in the file press i, to stop writing press esc and to finish writing type:wq and press enter
+•         Use command ‘chmod 777 /media/<mount file name>’ to make the file readable, writable and executable by everyone
+
+Code summary
+●	usbdev_probe : Probe function for USB device in which we do the following operations:
+○	Obtain endpoint addresses for the USB device , check if it is a device of Device of Mass storage class , SCSI subclass , Bulk-Only protocol
+○	Call test_device(dev) function that resets the device, obtains max LUN, reads capacity and also provides inquiry information
+○	Register the block device and create disk of size equal to capacity of the USB device
+○	Initialise the block request function : usb_block_request
+●	usb_block_request : Read requests from the kernel and pass them to workqueue for delayed handling of requests. The delayed request function is delayed_request_handler  the work structure created to handle this block_req_work
+●	Delayed_request_handler: Obtain segments for block transfer from the requests and based on direction of request perform read and write operations using SCSI commands
+●	SCSI Read 10 and Write 10 commands are handled by these functions:read_usb
+write_usb, which packages the SCSI commands into CBW ,receive/send buffer data,get back CSW. 
+●	device_exit : Performs cleanup and deregistering of the devices
