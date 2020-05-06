@@ -1,4 +1,4 @@
-obj-m:=assignment3.o
+obj-m:=Assignment3.o
 all:	
 	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) modules
 clean:
